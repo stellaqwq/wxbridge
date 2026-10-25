@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>wxbridge · 微信接入控制台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%2316a478'/%3E%3Cpath d='M10 13h5l3 13 3-9 3 9 4-13h3' fill='none' stroke='white' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/console/static/console.css">
+  <script src="/console/static/console.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">w</span><span>wxbridge<small>微信接入控制台</small></span></a>
+    <div class="nav-caption">工作空间</div>
+    <a class="nav-item active" href="#settings"><span class="nav-icon">▦</span>连接配置<span class="nav-dot"></span></a>
+    <a class="nav-item" href="#message-monitor"><span class="nav-icon">↔</span>消息监听</a>
+    <div class="sidebar-bottom"><span class="tiny-dot"></span>OneBot v11<span class="version">0.2</span></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div class="breadcrumb">工作空间 <span>/</span> <strong>连接配置</strong></div><span class="environment" id="environment">本地服务</span></header>
+    <main>
+      <div class="page-heading"><div><div class="eyebrow">CONNECT YOUR WORKFLOW</div><h1>让微信，接入你的 AI 工作流<span class="heading-dot">.</span></h1><p>配置一个私聊或群聊，通过 OneBot v11 连接机器人，并实时查看新消息。</p></div><div class="heading-actions"><a class="monitor-jump" href="#message-monitor">消息监听 ↘</a><span class="status-pill" id="status-pill" role="status"><i></i><span id="status-label">等待配置</span></span></div></div>
+      <section class="unlock card" id="unlock" hidden>
+        <div class="card-title"><span class="section-icon">↗</span><div><h2>打开管理会话</h2><p>使用启动窗口中的完整「Web 管理页面」链接，页面会自动解锁。</p></div></div>
+        <form id="unlock-form"><label for="admin-token">也可以粘贴链接中 #admin= 后的管理口令</label><div class="input-action"><input id="admin-token" type="password" autocomplete="off" placeholder="仅用于当前这次启动"><button class="button primary" type="submit">进入控制台</button></div></form>
+      </section>
+      <div id="notice" class="notice" role="status" hidden></div>
+      <form id="settings" hidden>
+        <div class="summary-grid">
+          <div class="summary-card"><span class="summary-icon green">↔</span><div><span class="summary-label">微信连接</span><strong id="connection-summary">尚未连接</strong></div></div>
+          <div class="summary-card"><span class="summary-icon blue">⌘</span><div><span class="summary-label">协议</span><strong>OneBot v11 <em id="chat-kind-summary">单会话接入</em></strong></div></div>
+          <div class="summary-card"><span class="summary-icon violet">◎</span><div><span class="summary-label">本地服务</span><strong id="server-address">127.0.0.1:6700</strong></div></div>
+        </div>
+        <div class="panels">
+          <section class="card">
+            <div class="card-title"><span class="section-icon green">01</span><div><h2>连接微信会话</h2><p>先在微信中打开要接入的私聊或群聊。</p></div></div>
+            <label for="chat-type">会话类型</label>
+            <select id="chat-type" class="chat-type-select" name="chat_type"><option value="friend">私聊</option><option value="group">群聊</option></select>
+            <label for="chat-name"><span id="chat-name-label">联系人备注名</span> <span class="required">*</span></label>
+            <input id="chat-name" name="chat_name" maxlength="100" placeholder="输入微信中的准确备注名" required autocomplete="off">
+            <p class="hint" id="chat-name-hint">需与当前私聊标题完全一致。请使用唯一备注，避免同名。</p>
+            <div class="field-row"><div><label for="nickname">机器人显示名</label><input id="nickname" name="nickname" maxlength="100" value="微信机器人" required></div><div><label for="self-id">机器人 ID</label><input id="self-id" name="self_id" inputmode="numeric" pattern="[0-9]+" value="10000" required></div></div>
+            <div id="private-fields"><label for="peer-id">联系人映射 ID</label><input id="peer-id" name="peer_id" inputmode="numeric" pattern="[0-9]+" value="10001" required><p class="hint">供 OneBot 框架识别的数字别名，不是微信号。发送目标使用这个 ID。</p></div>
+            <div id="group-fields" hidden>
+              <label for="group-id">群映射 ID</label><input id="group-id" name="group_id" inputmode="numeric" pattern="[0-9]+" value="20001">
+              <p class="hint">供 OneBot 使用的本地数字别名，不是微信群号。群回复使用这个 ID。</p>
+              <label for="group-mention-name">机器人在群里的微信昵称 <span class="optional">选填</span></label><input id="group-mention-name" maxlength="100" placeholder="用于把 @昵称 转成 OneBot 的 @机器人">
+            <p class="hint">填写实际群昵称，AstrBot 才能识别可见文字中的 @机器人。请关闭 AstrBot 的「回复时 @ 发送者」及引用回复。</p>
+              <div class="soft-note">群成员按可见头像分配本地 ID，昵称可能显示为“群成员”。相同头像可能合并，换头像可能变更 ID；这里不能读取真实 wxid 或完整群成员名单。</div>
+            </div>
+            <div class="divider"></div>
+            <label class="switch-row" for="accessibility"><span><strong>无障碍兼容开关</strong><small>微信未暴露聊天控件时启用。校验后临时调整进程内状态，正常退出恢复。</small></span><input class="switch" type="checkbox" id="accessibility" name="enable_accessibility"></label>
+            <label class="switch-row" for="foreground"><span><strong>启动时激活微信窗口</strong><small>监听时可与浏览器并排，保持消息区可见。发送仍需微信在前台。</small></span><input class="switch" type="checkbox" id="foreground" name="foreground"></label>
+          </section>
+          <div class="right-column">
+            <section class="card">
+              <div class="card-title"><span class="section-icon blue">02</span><div><h2>接入机器人框架</h2><p>已有 NoneBot 等框架时，填写它的反向连接地址。</p></div></div>
+              <label for="reverse-urls">反向 WebSocket 地址 <span class="optional">选填</span></label>
+              <textarea id="reverse-urls" name="reverse_ws_urls" rows="2" placeholder="ws://127.0.0.1:8080/onebot/v11/ws" spellcheck="false"></textarea>
+              <p class="hint">每行一个地址。使用 HTTP API 或正向 WS 时可留空。</p>
+              <label for="media-base-url">媒体服务地址 <span class="optional">选填</span></label>
+              <input id="media-base-url" type="url" placeholder="同机 AstrBot 可留空，如 http://192.168.1.10:6700" spellcheck="false">
+              <p class="hint">图片和文件由 AstrBot 下载。远程或容器部署时填写 AstrBot 能访问的本机地址，并设置服务监听地址。每个附件使用独立随机下载链接。</p>
+              <label for="access-token">OneBot 访问令牌</label><div class="input-action token-field"><input id="access-token" type="password" readonly autocomplete="off"><button type="button" id="toggle-token" class="icon-button" aria-label="显示访问令牌" title="显示或隐藏">显示</button><button type="button" id="copy-token" class="icon-button" aria-label="复制访问令牌">复制</button></div>
+              <p class="hint">在机器人框架中填写相同令牌，即可通过鉴权。</p>
+              <details><summary>HTTP 事件上报</summary><label for="http-urls">HTTP POST 地址</label><textarea id="http-urls" name="http_post_urls" rows="2" placeholder="http://127.0.0.1:8080/onebot/v11/http" spellcheck="false"></textarea></details>
+            </section>
+            <section class="card checklist"><h3><span class="check-mark">✓</span>连接前检查</h3><p><span>1</span>Windows 微信已登录，并打开上述会话</p><p><span>2</span>保存附件、语音转文字和发送时让微信获得焦点</p><p><span>3</span>AstrBot 启用图片模型及所需文件解析功能</p><div class="soft-note">每次接入一个私聊或群聊。接收文字、图片、文件和语音转写，回复支持文字及单张图片；群聊不支持成员管理、引用回复或自动 @成员。</div></section>
+          </div>
+        </div>
+        <div class="action-bar"><div class="save-note"><span class="tiny-dot"></span><span id="save-note">配置会保存到本机，令牌保持不变</span></div><div class="actions"><button type="button" class="button subtle" id="disconnect" disabled>断开连接</button><button type="button" class="button secondary" id="save-only">仅保存</button><button type="submit" class="button primary" id="save-connect">保存并连接微信 <span>↗</span></button></div></div>
+      </form>
+      <section id="message-monitor" class="card monitor-card" hidden>
+        <div class="monitor-heading"><div class="card-title"><span class="section-icon green">↔</span><div><h2>消息监听 <span class="live-badge">LIVE</span></h2><p id="monitor-chat">连接微信后查看新消息，以及媒体处理和 OneBot 上报状态。</p></div></div><span class="monitor-state" id="monitor-state">等待连接微信</span></div>
+        <div class="monitor-toolbar"><div class="monitor-counts"><span>收到 <b id="received-count">0</b></span><span>发出 <b id="sent-count">0</b></span><span>本页 <b id="message-count">0</b> / 200 条</span></div><div class="monitor-controls"><label class="scroll-option" for="auto-scroll"><input type="checkbox" id="auto-scroll" checked>自动滚动</label><button class="button secondary" type="button" id="toggle-monitor">暂停显示</button><button class="button subtle" type="button" id="clear-messages">清空显示</button></div></div>
+        <div class="monitor-stream"><div id="monitor-empty" class="monitor-empty"><span>↔</span><strong>等待新消息</strong><p>连接后让微信消息区保持可见，新消息会自动出现在这里。</p></div><div id="message-list" class="message-list" role="log" aria-live="polite" aria-relevant="additions"></div></div>
+        <p class="monitor-hint" id="monitor-hint">每秒更新 · 仅显示连接后新消息 · 暂停或清空只影响网页显示，不停止 OneBot</p>
+      </section>
+      <footer><span>wxbridge <span class="footer-dot">·</span> 本地运行，由你掌控</span><span>Windows 微信 4.1.15.56 <span class="footer-dot">/</span> OneBot v11</span></footer>
+    </main>
+  </div>
+</body>
+</html>
